@@ -1,0 +1,49 @@
+name: bioparser
+version: 0.1.0
+synopsis: Fast parser for bioinformatics file formats
+description: Fast parser for bioinformatics file formats
+homepage: https://github.com/fushitarazu/bioparser
+license: BSD3
+license-file: LICENSE
+author: Alind Gupta
+maintainer: Alind Gupta
+copyright: 2017 Alind Gupta
+category: Data
+build-type: Simple
+extra-source-files: README.md
+cabal-version: >=1.10
+
+library
+  hs-source-dirs:
+      src
+  exposed-modules:
+      Data.Bioparser
+    , Data.Bioparser.Prim
+  build-depends:
+      base       >= 4.7   && < 5
+    , attoparsec > 0.13.0.0
+    , bytestring > 0.9.0  && < 0.12
+    , vector     > 0.10.0
+  default-language:
+      Haskell2010
+  extensions:
+      OverloadedStrings
+
+test-suite bioparser-test
+  type:
+      exitcode-stdio-1.0
+  hs-source-dirs:
+      test
+  main-is:
+      Spec.hs
+  build-depends:
+      base
+    , bioparser
+  ghc-options:
+      -threaded -rtsopts -with-rtsopts=-N
+  default-language:
+     Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/fushitarazu/bioparser
