@@ -19,6 +19,8 @@ library
   exposed-modules:
       Data.Bioparser
     , Data.Bioparser.Prim
+    , Data.Bioparser.Combinators
+    , Data.Bioparser.Util
   build-depends:
       base       >= 4.7   && < 5
     , attoparsec > 0.13.0.0
@@ -26,8 +28,9 @@ library
     , vector     > 0.10.0
   default-language:
       Haskell2010
-  extensions:
+  default-extensions:
       OverloadedStrings
+  ghc-options: -Wall
 
 test-suite bioparser-test
   type:
