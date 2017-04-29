@@ -15,7 +15,6 @@ module Data.Bioparser.Prim
     , scoreline     -- * quality scores for fastq
     , plusline      -- * optional id for fastq (beginning with '+')
     , eol           -- * handle \r, \n, \r\n
-    , multBase
     ) where
 
 import Data.ByteString
@@ -48,7 +47,7 @@ defline = (deflFs <|> deflFq) *> deflRest <* eol
 --      Raw sequence parsing
 -------------------------------------------------
 
-multBase = many (satisfy notDefl)
+multBase = many (satisfy notDefl) <* (deflFs <|> deflFq)
   where notDefl x = x /= 62 && x /= 64 && x /= 10 && x /= 13
 
 rawSeq = mconcat <$> sepBy1 multBase eol
@@ -66,4 +65,5 @@ scoreline = many (satisfy notEol)
 --      Plusline parsing
 -------------------------------------------------
 
-plusline = word8 43 *> many anyWord8 <* eol
+plusline = word8 43 *> many (satisfy notEol) <* eol
+    where notEol x = x /= 10 && x /= 13
