@@ -17,12 +17,13 @@ module Data.Bioparser.Prim
     , eol           -- * handle \r, \n, \r\n
     ) where
 
-import Data.ByteString
+import Data.Word (Word8)
 import Data.Attoparsec.ByteString
 import Control.Applicative
 
 
 -- | \n or \r or \r\n
+eol :: Parser Word8
 eol = word8 10 <|> word8 13 <|> (word8 13 *> word8 10)
 
 
@@ -31,15 +32,19 @@ eol = word8 10 <|> word8 13 <|> (word8 13 *> word8 10)
 -------------------------------------------------
 
 -- | Initial defline character for fasta
+deflFs :: Parser Word8
 deflFs = word8 62    -- '>'
 
 -- | Initial defline character for fastq
+deflFq :: Parser Word8
 deflFq = word8 64    -- '@'
 
 -- | Defline description, required
+deflRest :: Parser [Word8]
 deflRest = many (satisfy notEol)
   where notEol x = x /= 10 && x /= 13
 
+defline :: Parser [Word8]
 defline = (deflFs <|> deflFq) *> deflRest <* eol
 
 
@@ -47,9 +52,11 @@ defline = (deflFs <|> deflFq) *> deflRest <* eol
 --      Raw sequence parsing
 -------------------------------------------------
 
+multBase :: Parser [Word8]
 multBase = many (satisfy notDefl) <* (deflFs <|> deflFq)
   where notDefl x = x /= 62 && x /= 64 && x /= 10 && x /= 13
 
+rawSeq :: Parser [Word8]
 rawSeq = mconcat <$> sepBy1 multBase eol
 
 
@@ -57,6 +64,7 @@ rawSeq = mconcat <$> sepBy1 multBase eol
 --      Scoreline (quality scores)
 -------------------------------------------------
 
+scoreline :: Parser [Word8]
 scoreline = many (satisfy notEol)
   where notEol x = x /= 10 && x /= 13
 
@@ -65,5 +73,6 @@ scoreline = many (satisfy notEol)
 --      Plusline parsing
 -------------------------------------------------
 
+plusline :: Parser [Word8]
 plusline = word8 43 *> many (satisfy notEol) <* eol
     where notEol x = x /= 10 && x /= 13

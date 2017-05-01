@@ -13,25 +13,29 @@ module Data.Bioparser.Combinators
     , parseFastq   -- * parse .fq, .fastq file formtas
     ) where
 
-import Data.Attoparsec.ByteString
 import Control.Applicative
-import Data.ByteString (ByteString)
+import Data.Word (Word8)
+import Data.Vector (Vector)
 import qualified Data.Vector as V
+import Data.Attoparsec.ByteString (Parser, endOfInput)
 
 import Data.Bioparser.Prim
-import Data.Bioparser.Util
 
 -- | Parsing a single fasta record, i.e defline <*> rawSeq
 
+fastaRecord :: Parser ([Word8], [Word8])
 fastaRecord = (\d r -> (d,r)) <$> defline <*> rawSeq
 
+parseFasta :: Parser (Vector ([Word8], [Word8]))
 parseFasta = V.fromList <$> many fastaRecord <* endOfInput 
 
+fastqRecord :: Parser ([Word8], [Word8], [Word8], [Word8])
 fastqRecord = (\a b c d -> (a,b,c,d))
           <$> defline
           <*> rawSeq
           <*> plusline
           <*> scoreline
 
+parseFastq :: Parser (Vector ([Word8], [Word8], [Word8], [Word8]))
 parseFastq = V.fromList <$> many fastqRecord <* endOfInput
 
