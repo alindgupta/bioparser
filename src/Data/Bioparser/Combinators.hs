@@ -5,7 +5,7 @@
 --      using attoparsec
 --
 --      Maintainer: Alind Gupta
---
+--      Require parseOnly rather than parse
 
 
 module Data.Bioparser.Combinators

@@ -53,12 +53,10 @@ defline = (deflFs <|> deflFq) *> deflRest <* eol
 --      Raw sequence parsing
 -------------------------------------------------
 
-
 rawSeq :: Parser [Word8]
-rawSeq = mconcat <$> sepBy' multBase eol <* lookAhead (deflFs <|> deflFq)
-    where multBase = init <$> many (satisfy notEOL)
-          notEOL x = x /= 10 && x /= 13
+rawSeq = mconcat <$> sepBy1' multBase eol
 
+multBase = many (notWord8 62) <|> many (notWord8 64)
 
 -------------------------------------------------
 --      Scoreline (quality scores)
