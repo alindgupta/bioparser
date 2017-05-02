@@ -19,6 +19,7 @@ module Data.Bioparser.Prim
 
 import Data.Word (Word8)
 import Data.Attoparsec.ByteString
+import Data.Attoparsec.Combinator
 import Control.Applicative
 
 
@@ -52,12 +53,11 @@ defline = (deflFs <|> deflFq) *> deflRest <* eol
 --      Raw sequence parsing
 -------------------------------------------------
 
-multBase :: Parser [Word8]
-multBase = many (satisfy notDefl) <* (deflFs <|> deflFq)
-  where notDefl x = x /= 62 && x /= 64 && x /= 10 && x /= 13
 
 rawSeq :: Parser [Word8]
-rawSeq = mconcat <$> sepBy1 multBase eol
+rawSeq = mconcat <$> sepBy' multBase eol <* lookAhead (deflFs <|> deflFq)
+    where multBase = init <$> many (satisfy notEOL)
+          notEOL x = x /= 10 && x /= 13
 
 
 -------------------------------------------------
