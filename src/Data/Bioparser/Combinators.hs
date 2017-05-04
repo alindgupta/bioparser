@@ -21,22 +21,23 @@ import qualified Data.Vector as V
 import Data.Attoparsec.ByteString (Parser, endOfInput)
 
 import Data.Bioparser.Prim
+import Data.Bioparser.Util (FastaRecord(..), FastqRecord(..))
 
 -- | Parsing a single fasta record, i.e defline <*> rawSeq
 
-fastaRecord :: Parser ([Word8], [Word8])
-fastaRecord = (\d r -> (d,r)) <$> defline <*> rawSeq
+--fastaRecord :: Parser FastaRecord
+fastaRecord = curry FastaRecord <$> defline <*> rawSeq
 
-parseFasta :: Parser (Vector ([Word8], [Word8]))
+--parseFasta :: Parser (Vector FastaRecord)
 parseFasta = V.fromList <$> many fastaRecord <* endOfInput
 
-fastqRecord :: Parser ([Word8], [Word8], [Word8], [Word8])
-fastqRecord = (\a b c d -> (a,b,c,d))
+--fastqRecord :: Parser FastqRecord
+fastqRecord = (\a b c d -> FastqRecord (a,b,c,d))
           <$> defline
           <*> rawSeq
           <*> plusline
           <*> scoreline
 
-parseFastq :: Parser (Vector ([Word8], [Word8], [Word8], [Word8]))
+--parseFastq :: Parser (Vector FastqRecord)
 parseFastq = V.fromList <$> many fastqRecord
 

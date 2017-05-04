@@ -22,6 +22,7 @@ import Data.Attoparsec.ByteString
 import Data.Attoparsec.Combinator
 import Control.Applicative
 
+import Data.Bioparser.Util
 
 -- | \n or \r or \r\n
 eol :: Parser Word8
@@ -45,7 +46,7 @@ deflRest :: Parser [Word8]
 deflRest = many (satisfy notEol)
   where notEol x = x /= 10 && x /= 13
 
-defline :: Parser [Word8]
+defline :: Parser Defline
 defline = (deflFs <|> deflFq) *> deflRest <* eol
 
 
@@ -53,7 +54,7 @@ defline = (deflFs <|> deflFq) *> deflRest <* eol
 --      Raw sequence parsing
 -------------------------------------------------
 
-rawSeq :: Parser [Word8]
+rawSeq :: Parser Sequence
 rawSeq = mconcat <$> sepBy1' multBase eol
 
 multBase = many (notWord8 62) <|> many (notWord8 64)
@@ -62,7 +63,7 @@ multBase = many (notWord8 62) <|> many (notWord8 64)
 --      Scoreline (quality scores)
 -------------------------------------------------
 
-scoreline :: Parser [Word8]
+scoreline :: Parser Scoreline
 scoreline = many (satisfy notEol)
   where notEol x = x /= 10 && x /= 13
 
@@ -71,6 +72,6 @@ scoreline = many (satisfy notEol)
 --      Plusline parsing
 -------------------------------------------------
 
-plusline :: Parser [Word8]
+plusline :: Parser Plusline
 plusline = word8 43 *> many (satisfy notEol) <* eol
     where notEol x = x /= 10 && x /= 13
