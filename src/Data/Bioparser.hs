@@ -5,17 +5,21 @@ module Data.Bioparser
     , encodeFastq 
     ) where
 
-import Data.ByteString
-import Data.Word
+import Data.ByteString (ByteString)
+import Data.Attoparsec.ByteString
+import Data.Vector (Vector)
 
-import Data.Bioparser.Prim
 import Data.Bioparser.Combinators
 import Data.Bioparser.Util
 
-decodeFasta = undefined
+decodeFasta :: ByteString -> Either String (Vector FastaRecord)
+decodeFasta = parseOnly parseFasta
 
-decodeFastq = undefined
+decodeFastq :: ByteString -> Either String (Vector FastqRecord)
+decodeFastq = parseOnly parseFastq
 
+encodeFasta :: Vector FastaRecord -> ByteString
 encodeFasta = undefined
 
+encodeFastq :: Vector FastaRecord -> ByteString
 encodeFastq = undefined
