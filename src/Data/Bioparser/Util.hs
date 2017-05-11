@@ -7,17 +7,15 @@ module Data.Bioparser.Util
     , FastqRecord(..)
     ) where
 
-import Data.Word (Word8)
+import Data.ByteString (ByteString)
 
-type Defline = [Word8]
-type Sequence = [Word8]
-type Plusline = [Word8]
-type Scoreline = [Word8]
+type Defline = ByteString
+type Sequence = ByteString
+type Plusline = ByteString
+type Scoreline = ByteString
 
-newtype FastaRecord = FastaRecord 
-    { getFastaRecord ::  (Defline, Sequence) }
+newtype FastaRecord = FastaRecord (Defline, Sequence)
     deriving (Show)
 
-newtype FastqRecord = FastqRecord
-    { getFastqRecord :: (Defline, Sequence, Plusline, Scoreline) }
+newtype FastqRecord = FastqRecord (Defline, Sequence, Plusline, Scoreline)
     deriving (Show)
