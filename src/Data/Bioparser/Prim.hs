@@ -10,68 +10,77 @@
 
 
 module Data.Bioparser.Prim
-    ( defline       -- * sequence id and/or description ('>' or '@')
-    , rawSeq        -- * raw sequence
-    , scoreline     -- * quality scores for fastq
-    , plusline      -- * optional id for fastq (beginning with '+')
-    , eol           -- * handle \r, \n, \r\n
+    ( fastaDefline
+    , fastqDefline          -- * sequence id and/or description ('>' or '@')
+    , multSeq         -- * raw sequence
+    , scoreLine        -- * quality scores for fastq
+    , plusLine         -- * optional id for fastq (beginning with '+')
+    , endOfLine        -- * handle \r, \n, \r\n
     ) where
 
 import Data.Word (Word8)
-import Data.Attoparsec.ByteString
-import Control.Applicative
+import Data.ByteString (ByteString)
+import Data.Attoparsec.ByteString     
+import qualified Data.Attoparsec.ByteString as A
+import Control.Applicative ((*>), (<*), (<|>))
 
 import Data.Bioparser.Util
 
--- | \n or \r or \r\n
-eol :: Parser Word8
-eol = word8 10 <|> word8 13 <|> (word8 13 *> word8 10)
+-- | Utility function for other parsers
+notEndOfLine :: Word8 -> Bool
+notEndOfLine c = (c /= 10) && (c /= 13)
+{-# INLINE notEndOfLine #-}
 
+-- | \n or \r
+endOfLine :: Parser Word8
+endOfLine = A.word8 10 <|> A.word8 13
+{-# INLINE endOfLine #-}
+
+-- | Utility function, reads a single line delimited by a newline char
+singleLine = A.takeWhile notEndOfLine <* endOfLine
+{-# INLINE singleLine #-}
 
 -------------------------------------------------
 --      Defline
 -------------------------------------------------
 
--- | Initial defline character for fasta
-deflFs :: Parser Word8
-deflFs = word8 62    -- '>'
 
--- | Initial defline character for fastq
-deflFq :: Parser Word8
-deflFq = word8 64    -- '@'
+fastaDefline = defline (A.word8 62)
 
--- | Defline description, required
-deflRest :: Parser [Word8]
-deflRest = many (satisfy notEol)
-  where notEol x = x /= 10 && x /= 13
+fastqDefline = defline (A.word8 64)
 
-defline :: Parser Defline
-defline = (deflFs <|> deflFq) *> deflRest <* eol
+defline :: Parser Word8 -> Parser Defline
+defline symb = symb *> A.takeWhile notEndOfLine <* endOfLine
+{-# INLINE defline #-}
 
 
 -------------------------------------------------
---      Raw sequence parsing
+--      Sequence parsing
 -------------------------------------------------
 
-rawSeq :: Parser Sequence
-rawSeq = mconcat <$> sepBy1' multBase eol
+multSeq :: Parser Sequence
+multSeq = loop
+  where
+    loop = do
+        rawSeq <- singleLine
+        m <- A.peekWord8
+        case m of
+            Just x | x == 62 || x == 64 -> return rawSeq
+            _                           -> mappend rawSeq <$> multSeq
 
-multBase :: Parser Sequence
-multBase = many (notWord8 62) <|> many (notWord8 64)
 
 -------------------------------------------------
 --      Scoreline (quality scores)
 -------------------------------------------------
 
-scoreline :: Parser Scoreline
-scoreline = many (satisfy notEol)
-  where notEol x = x /= 10 && x /= 13
-
+scoreLine :: Parser ScoreLine
+scoreLine = singleLine
+{-# INLINE scoreLine #-}
 
 -------------------------------------------------
 --      Plusline parsing
 -------------------------------------------------
 
-plusline :: Parser Plusline
-plusline = word8 43 *> many (satisfy notEol) <* eol
-    where notEol x = x /= 10 && x /= 13
+plusLine :: Parser PlusLine
+plusLine = A.word8 43 *> singleLine
+{-# INLINE plusLine #-}

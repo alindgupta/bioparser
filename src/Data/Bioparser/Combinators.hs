@@ -22,20 +22,20 @@ import Data.Attoparsec.ByteString (Parser, endOfInput)
 import Data.Bioparser.Prim
 import Data.Bioparser.Util (FastaRecord(..), FastqRecord(..))
 
--- | Parsing a single fasta record, i.e defline <*> rawSeq
+-- | Parsing a single fasta record, i.e defline <*> multSeq
 
 fastaRecord :: Parser FastaRecord
-fastaRecord = curry FastaRecord <$> defline <*> rawSeq
+fastaRecord = curry FastaRecord <$> fastaDefline <*> multSeq
 
 parseFasta :: Parser (Vector FastaRecord)
-parseFasta = V.fromList <$> many fastaRecord <* endOfInput
+parseFasta = V.fromList <$> many fastaRecord -- <* endOfInput
 
 fastqRecord :: Parser FastqRecord
 fastqRecord = (\a b c d -> FastqRecord (a,b,c,d))
-          <$> defline
-          <*> rawSeq
-          <*> plusline
-          <*> scoreline
+          <$> fastqDefline
+          <*> multSeq
+          <*> plusLine
+          <*> scoreLine
 
 parseFastq :: Parser (Vector FastqRecord)
 parseFastq = V.fromList <$> many fastqRecord

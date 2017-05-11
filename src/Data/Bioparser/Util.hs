@@ -1,8 +1,8 @@
 module Data.Bioparser.Util
     ( Defline
     , Sequence
-    , Plusline
-    , Scoreline
+    , PlusLine
+    , ScoreLine
     , FastaRecord(..)
     , FastqRecord(..)
     ) where
@@ -11,11 +11,11 @@ import Data.ByteString (ByteString)
 
 type Defline = ByteString
 type Sequence = ByteString
-type Plusline = ByteString
-type Scoreline = ByteString
+type PlusLine = ByteString
+type ScoreLine = ByteString
 
 newtype FastaRecord = FastaRecord (Defline, Sequence)
     deriving (Show)
 
-newtype FastqRecord = FastqRecord (Defline, Sequence, Plusline, Scoreline)
+newtype FastqRecord = FastqRecord (Defline, Sequence, PlusLine, ScoreLine)
     deriving (Show)
