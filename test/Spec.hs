@@ -10,13 +10,15 @@ import qualified Data.Vector as V
 import Data.Attoparsec.ByteString (parseOnly)
 import Control.Applicative
 
-fasta1 = seq "" (B.readFile "test/DMproteome.fasta")
-fasta2 = seq "" (B.readFile "test/HSproteome.fasta")
 
 main = do
     defaultMain [
           bench "parser1" $ 
-            nfIO $ fmap decodeFasta fasta1
+            nfIO $ fmap (fmap V.length . decodeFasta) (B.readFile "test/DMproteome.fasta")
         , bench "parser2" $
-            nfIO $ fmap decodeFasta fasta2
+            nfIO $ fmap decodeFasta (B.readFile "test/hsproteome.fasta")
+        , bench "parse1+2" $
+            nfIO $ fmap decodeFasta (B.readFile "test/Gproteome.fasta")
+        , bench "fileInput" $
+            nfIO $ B.readFile "test/Gproteome.fasta"
         ]
