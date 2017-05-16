@@ -8,7 +8,8 @@
 module Data.Bioparser.Prim
     ( fastaDefline          -- * defline beginning with '>'
     , fastqDefline          -- * defline beginning with '@'
-    , multSeq               -- * raw sequence, ignores newlines
+    , multSeqFasta          -- * raw sequence for fasta, ignores newlines
+    , multSeqFastq          -- * raw sequence for fastq, ignores newline
     , scoreLine             -- * quality scores for fastq
     , plusLine              -- * id for fastq (beginning with '+')
     , endOfLine             -- * handle \r, \n
@@ -56,17 +57,29 @@ fastqDefline = defline (A.word8 64)
 
 -- | Monadic parser for a sequence
 -- Newline characters are ignored
--- Parser finishes if '>' or '@' are found
+-- Parser finishes if '>' is found
 -- but not on endOfInput so parseOnly is required
-multSeq :: Parser Sequence
-multSeq = loop
+multSeqFasta :: Parser Sequence
+multSeqFasta = loop
   where
     loop = do
         rawSeq <- singleLine
         m <- A.peekWord8
         case m of
-            Just x | x == 62 || x == 64 -> return rawSeq
-            _                           -> mappend rawSeq <$> multSeq
+            Just x | x == 62 -> return rawSeq
+            _                -> mappend rawSeq <$> multSeqFasta
+
+-- | Identical to multSeqFasta
+-- but stops when it encounters '@' or '+'
+multSeqFastq :: Parser Sequence
+multSeqFastq = loop
+  where
+    loop = do
+        rawSeq <- singleLine
+        m <- A.peekWord8
+        case m of
+            Just x | x == 64 || x == 43 -> return rawSeq
+            _                           -> mappend rawSeq <$> multSeqFastq
 
 
 -------------------------------------------------

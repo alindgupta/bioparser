@@ -7,6 +7,7 @@
 module Data.Bioparser.Combinators
     ( parseFasta        -- * parse .fs, .fasta file formats
     , parseFastq        -- * parse .fq, .fastq file formtas
+    , fastqRecord
     ) where
 
 import Control.Applicative
@@ -20,7 +21,7 @@ import Data.Bioparser.Types (FastaRecord(..), FastqRecord(..))
 
 -- | Parse a single fasta record, i.e defline-sequence
 fastaRecord :: Parser FastaRecord
-fastaRecord = curry FastaRecord <$> fastaDefline <*> multSeq
+fastaRecord = curry FastaRecord <$> fastaDefline <*> multSeqFasta
 
 -- | Parse multiple fasta records and store as a vector
 parseFasta :: Parser (Vector FastaRecord)
@@ -30,7 +31,7 @@ parseFasta = V.fromList <$> many fastaRecord -- <* endOfInput
 fastqRecord :: Parser FastqRecord
 fastqRecord = (\a b c d -> FastqRecord (a,b,c,d))
           <$> fastqDefline
-          <*> multSeq
+          <*> multSeqFastq
           <*> plusLine
           <*> scoreLine
 
