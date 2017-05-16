@@ -4,7 +4,7 @@ import Control.DeepSeq
 import qualified Data.ByteString as B
 import Data.Bioparser
 import Data.Bioparser.Combinators
-import Data.Bioparser.Util
+import Data.Bioparser.Types
 import Data.Bioparser.Prim
 import qualified Data.Vector as V
 import Data.Attoparsec.ByteString (parseOnly)

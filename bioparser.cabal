@@ -20,7 +20,7 @@ library
       Data.Bioparser
     , Data.Bioparser.Prim
     , Data.Bioparser.Combinators
-    , Data.Bioparser.Util
+    , Data.Bioparser.Types
   build-depends:
       base       >= 4.7   && < 5
     , attoparsec > 0.13.0.0

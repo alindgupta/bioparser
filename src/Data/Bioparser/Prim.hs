@@ -19,7 +19,7 @@ import Data.Attoparsec.ByteString
 import qualified Data.Attoparsec.ByteString as A
 import Control.Applicative ((*>), (<*), (<|>))
 
-import Data.Bioparser.Util
+import Data.Bioparser.Types
 
 -- | Utility function
 notEndOfLine :: Word8 -> Bool

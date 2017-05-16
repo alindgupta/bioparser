@@ -10,7 +10,7 @@ import Data.Attoparsec.ByteString
 import Data.Vector (Vector)
 
 import Data.Bioparser.Combinators
-import Data.Bioparser.Util
+import Data.Bioparser.Types
 
 decodeFasta :: ByteString -> Either String (Vector FastaRecord)
 decodeFasta = parseOnly parseFasta

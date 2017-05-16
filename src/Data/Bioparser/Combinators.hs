@@ -12,10 +12,10 @@ module Data.Bioparser.Combinators
 import Control.Applicative
 import Data.Vector (Vector)
 import qualified Data.Vector as V
-import Data.Attoparsec.ByteString (Parser, endOfInput)
+import Data.Attoparsec.ByteString (Parser)
 
 import Data.Bioparser.Prim
-import Data.Bioparser.Util (FastaRecord(..), FastqRecord(..))
+import Data.Bioparser.Types (FastaRecord(..), FastqRecord(..))
 
 
 -- | Parse a single fasta record, i.e defline-sequence
