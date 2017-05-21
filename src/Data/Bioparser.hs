@@ -31,5 +31,5 @@ encodeFasta = foldr ((<>) . fastaEncoder) ""
 
 encodeFastq :: Vector FastqRecord -> ByteString
 encodeFastq = foldr ((<>) . fastqEncoder) ""
-  where fastqEncoder (FastqRecord (d,s,p,sc)) = "@" <> d <> "\n" <> s
-                                                <> "+" <> p <> sc <> "\n"
+  where fastqEncoder (FastqRecord (d,s,p,sc)) = "@" <> d <> "\n" <> s <> "\n"
+                                                <> "+" <> p <> "\n" <> sc <> "\n"
