@@ -16,9 +16,16 @@ main = do
           bench "parser1" $ 
             nfIO $ fmap (fmap V.length . decodeFasta) (B.readFile "test/DMproteome.fasta")
         , bench "parser2" $
-            nfIO $ fmap decodeFasta (B.readFile "test/hsproteome.fasta")
+            nfIO $ fmap decodeFasta (B.readFile "test/HSproteome.fasta")
         , bench "parse1+2" $
             nfIO $ fmap decodeFasta (B.readFile "test/Gproteome.fasta")
         , bench "fileInput" $
             nfIO $ B.readFile "test/Gproteome.fasta"
+        , bench "decEncDec" $
+            nfIO $ fmap decEncDec (B.readFile "test/DMproteome.fasta")
         ]
+
+
+decEncDec content = (encodeFasta) <$> decodeFasta content
+    
+    
