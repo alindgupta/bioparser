@@ -67,7 +67,19 @@ multSeqFasta = loop
         m <- A.peekWord8
         case m of
             Just x | x == 62 -> return rawSeq
+            Nothing          -> return rawSeq       -- see explanation below
             _                -> mappend rawSeq <$> multSeqFasta
+
+-- explanation for nothing clause in multSeqFasta:
+-- since the last line in a fasta file is a singleline
+-- rawSeq <- singleLine will eat up the final "\n", if any
+-- and so peekWord8 returns Nothing due to end of input
+-- and that needs to be handled as a return rawSeq
+-- This behaviour is required for test suite because
+-- encodeFasta will always end the file with a newline after defline
+-- This behaviour is not required in multSeqFastq since
+-- the last line in Fastq files is not a multSeq so
+-- I omitted it to save a step, but may be added for coherence if required 
 
 -- | Identical to multSeqFasta
 -- but stops when it encounters '@' or '+'
@@ -79,7 +91,9 @@ multSeqFastq = loop
         m <- A.peekWord8
         case m of
             Just x | x == 64 || x == 43 -> return rawSeq
+           -- Nothing                     -> return rawSeq
             _                           -> mappend rawSeq <$> multSeqFastq
+
 
 
 -------------------------------------------------
