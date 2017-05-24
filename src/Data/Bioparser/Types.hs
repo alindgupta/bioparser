@@ -25,11 +25,11 @@ type PlusLine = ByteString
 type ScoreLine = ByteString
 
 newtype FastaRecord = FastaRecord (Defline, Sequence)
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | Required for benchmarking purposes
 instance NFData FastaRecord where
     rnf (FastaRecord _) = ()
 
 newtype FastqRecord = FastqRecord (Defline, Sequence, PlusLine, ScoreLine)
-    deriving (Show)
+    deriving (Show, Eq)
