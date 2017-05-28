@@ -15,19 +15,15 @@ main = hspec $ do
         it "can compose properly with encodeFastq" $ do
             fq <- B.readFile "/Users/Alind/Desktop/SP1.fq"
             let d = decodeFastq fq
-            let e = fmap (decodeFastq . encodeFastq) d
-            case e of
-                Right ed -> ed `shouldBe` d
-                _ -> return ()
+            let e = decodeFastq . encodeFastq $ d
+            e `shouldBe` d
 
     describe "Data.Bioparser.decodeFasta" $ do
         it "can compose properly with encodeFasta" $ do
             fs <- B.readFile "test/DMproteome.fasta"
             let d = decodeFasta fs
-            let e = fmap (decodeFasta . encodeFasta) d
-            case e of
-                Right ed -> ed `shouldBe` d
-                _ -> return ()
+            let e = decodeFasta . encodeFasta $ d
+            e `shouldBe` d
 
 
             
