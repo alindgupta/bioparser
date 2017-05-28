@@ -7,25 +7,25 @@ import Data.Bioparser.Combinators
 import Data.Bioparser.Types
 import Data.Bioparser.Prim
 import qualified Data.Vector as V
-import Data.Attoparsec.ByteString (parseOnly)
+import Data.Attoparsec.ByteString (parse, parseOnly)
 import Control.Applicative
 
 
 main = do
     defaultMain [
-          bench "parser1" $ 
-            nfIO $ fmap (fmap V.length . decodeFasta) (B.readFile "test/DMproteome.fasta")
-        , bench "parser2" $
+          bench "fasta-parser-1" $ 
+            nfIO $ fmap decodeFasta (B.readFile "test/DMproteome.fasta")
+        , bench "fasta-parser-2" $
             nfIO $ fmap decodeFasta (B.readFile "test/HSproteome.fasta")
-        , bench "parse1+2" $
+        , bench "fasta-parser-1+2" $
             nfIO $ fmap decodeFasta (B.readFile "test/Gproteome.fasta")
         , bench "fileInput" $
             nfIO $ B.readFile "test/Gproteome.fasta"
-        , bench "decEncDec" $
-            nfIO $ fmap decEncDec (B.readFile "test/DMproteome.fasta")
+        -- , bench "decEncDec" $
+            -- nfIO $ fmap decEncDec (B.readFile "test/DMproteome.fasta")
         ]
 
 
-decEncDec content = (encodeFasta) <$> decodeFasta content
+-- decEncDec content = (decodeFasta . encodeFasta) <$> decodeFasta content
     
     
