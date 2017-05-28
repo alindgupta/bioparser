@@ -31,5 +31,8 @@ newtype FastaRecord = FastaRecord (Defline, Sequence)
 instance NFData FastaRecord where
     rnf (FastaRecord _) = ()
 
+instance NFData FastqRecord where
+    rnf _ = ()
+
 newtype FastqRecord = FastqRecord (Defline, Sequence, PlusLine, ScoreLine)
     deriving (Show, Eq)
