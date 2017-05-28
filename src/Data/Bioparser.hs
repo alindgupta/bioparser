@@ -15,11 +15,16 @@ import Data.Monoid ((<>))
 import Data.Bioparser.Combinators
 import Data.Bioparser.Types
 
-decodeFasta :: ByteString -> Either String (Vector FastaRecord)
-decodeFasta = parseOnly parseFasta
+decodeFasta :: ByteString -> Vector FastaRecord
+decodeFasta x = case feed (parse parseFasta x) "\n" of
+                    Done _ r -> r
+                    _        -> error "parse error"
+                    
 
-decodeFastq :: ByteString -> Either String (Vector FastqRecord)
-decodeFastq = parseOnly parseFastq
+decodeFastq :: ByteString -> Vector FastqRecord
+decodeFastq x = case feed (parse parseFastq x) B.empty of
+                    Done _ r -> r
+                    _        -> error "parse error"
 
 -- obeys the following law, should test for this more extensively
 -- decodeFasta .  encodeFasta . decodeFasta = decodeFasta
@@ -27,17 +32,11 @@ decodeFastq = parseOnly parseFastq
 -- exactly equal to input i.e.
 -- fmap (== f) (encodeFasta $ decodeFasta f) may not return True
 
--- EXTREMELY SLOW!!! (~500X slower than decodeFasta)
---
-
-n = B.singleton '\n'
-{-# INLINE n #-}
-
 encodeFasta :: Vector FastaRecord -> ByteString
-encodeFasta = foldr ((<>) . fastaEncoder) mempty
-  where fastaEncoder (FastaRecord (d,s)) = ">" <> d <> n <> s <> n
+encodeFasta = foldr (mappend . fastaEncoder) mempty
+  where fastaEncoder (FastaRecord (d,s)) = ">" <> d <> "\n" <> s <> "\n"
 
 encodeFastq :: Vector FastqRecord -> ByteString
-encodeFastq = foldr ((<>) . fastqEncoder) mempty
-  where fastqEncoder (FastqRecord (d,s,p,sc)) = "@" <> d <> n <> s <> n
-                                                <> "+" <> p <> n <> sc <> n
+encodeFastq = foldr (mappend . fastqEncoder) mempty
+  where fastqEncoder (FastqRecord (d,s,p,sc)) = "@" <> d <> "\n" <> s <> "\n"
+                                                <> "+" <> p <> "\n" <> sc <> "\n"
