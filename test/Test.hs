@@ -13,7 +13,7 @@ main = hspec $ do
 
     describe "Data.Bioparser.decodeFastq" $ do
         it "can compose properly with encodeFastq" $ do
-            fq <- B.readFile "/Users/Alind/Desktop/SP1.fq"
+            fq <- B.readFile "test/SP1.fq"
             let d = decodeFastq fq
             let e = decodeFastq . encodeFastq $ d
             e `shouldBe` d
