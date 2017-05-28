@@ -18,7 +18,7 @@ module Data.Bioparser.Prim
 import Data.Word (Word8)
 import Data.Attoparsec.ByteString     
 import qualified Data.Attoparsec.ByteString as A
-import Control.Applicative ((*>), (<*), (<|>))
+import Control.Applicative ((*>), (<*), (<|>), many)
 
 import Data.Bioparser.Types
 
@@ -66,9 +66,9 @@ multSeqFasta = loop
         rawSeq <- singleLine
         m <- A.peekWord8
         case m of
-            Just x | x == 62 -> return rawSeq
-            Nothing          -> return rawSeq       -- see explanation below
-            _                -> mappend rawSeq <$> multSeqFasta
+            x | x == Just 10 || x == Just 62 || x == Nothing -> return rawSeq
+            _        -> mappend rawSeq <$> multSeqFasta
+
 
 -- explanation for nothing clause in multSeqFasta:
 -- since the last line in a fasta file is a singleline
