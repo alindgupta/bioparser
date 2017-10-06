@@ -16,8 +16,7 @@ import Data.Attoparsec.ByteString (Parser)
 
 import Data.Bioparser.Prim
 import Data.Bioparser.Types (FastaRecord(..), FastqRecord(..))
-
-
+  
 -- | Parse a single fasta record, i.e defline-sequence
 fastaRecord :: Parser FastaRecord
 fastaRecord = curry FastaRecord <$> fastaDefline <*> multSeqFasta
@@ -29,12 +28,11 @@ parseFasta = V.fromList <$> many fastaRecord
 -- | Parse a single fastq record, i.e. defline-sequence-plusline-scores
 fastqRecord :: Parser FastqRecord
 fastqRecord = (\a b c d -> FastqRecord (a,b,c,d))
-          <$> fastqDefline
-          <*> multSeqFastq
-          <*> plusLine
-          <*> scoreLine
+  <$> fastqDefline
+  <*> multSeqFastq
+  <*> plusLine
+  <*> scoreLine
 
 -- | Parse multiple fastq records and store as a vector
 parseFastq :: Parser (Vector FastqRecord)
 parseFastq = V.fromList <$> many fastqRecord
-
