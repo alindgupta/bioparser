@@ -7,7 +7,8 @@ Master [git repository](https://github.com/fushitarazu/bioparser):
 ## Usage
 Build with stack.
 
-```{haskell}
+```haskell
+
 import qualified Data.ByteString as BS
 
 main = do
