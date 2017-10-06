@@ -1,8 +1,9 @@
 -- |
---      Newtype wrappers
+--       Module: Data.Bioparser.Types
+--
+--       Newtype wrappers
 --
 --     
---      TODO: Util.hs should include utility tools for analyzing files
 
 
 module Data.Bioparser.Types
@@ -14,10 +15,8 @@ module Data.Bioparser.Types
     , FastqRecord(..)
     ) where
 
-
 import Data.ByteString (ByteString)
 import Control.DeepSeq
-
 
 type Defline = ByteString
 type Sequence = ByteString
