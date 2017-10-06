@@ -15,10 +15,12 @@ module Data.Bioparser.Prim
     , endOfLine             -- * handle \r, \n
     ) where
 
+import Data.ByteString
 import Data.Word (Word8)
 import Data.Attoparsec.ByteString     
 import qualified Data.Attoparsec.ByteString as A
-import Control.Applicative ((*>), (<*), (<|>), many)
+import Control.Applicative ((*>), (<*), (<|>))
+import Data.Maybe (isNothing)
 
 import Data.Bioparser.Types
 
@@ -33,6 +35,7 @@ endOfLine = A.word8 10 <|> A.word8 13
 {-# INLINE endOfLine #-}
 
 -- | Utility function, reads a single line delimited by a newline char
+singleLine :: Parser Data.ByteString.ByteString
 singleLine = A.takeWhile notEndOfLine <* endOfLine
 {-# INLINE singleLine #-}
 
@@ -46,10 +49,11 @@ defline :: Parser Word8 -> Parser Defline
 defline symb = symb *> singleLine
 {-# INLINE defline #-}
 
+fastaDefline :: Parser Defline
 fastaDefline = defline (A.word8 62)
 
+fastqDefline :: Parser Defline
 fastqDefline = defline (A.word8 64)
-
 
 -------------------------------------------------
 --      Sequence parsing
@@ -63,11 +67,11 @@ multSeqFasta :: Parser Sequence
 multSeqFasta = loop
   where
     loop = do
-        rawSeq <- singleLine
-        m <- A.peekWord8
-        case m of
-            x | x == Just 10 || x == Just 62 || x == Nothing -> return rawSeq
-            _        -> mappend rawSeq <$> multSeqFasta
+      rawSeq <- singleLine
+      m <- A.peekWord8
+      case m of
+        x | x == Just 10 || x == Just 62 || isNothing x -> return rawSeq
+        _ -> mappend rawSeq <$> multSeqFasta
 
 
 -- explanation for nothing clause in multSeqFasta:
@@ -87,13 +91,11 @@ multSeqFastq :: Parser Sequence
 multSeqFastq = loop
   where
     loop = do
-        rawSeq <- singleLine
-        m <- A.peekWord8
-        case m of
-            Just x | x == 64 || x == 43 -> return rawSeq
-           -- Nothing                     -> return rawSeq
-            _                           -> mappend rawSeq <$> multSeqFastq
-
+     rawSeq <- singleLine
+     m <- A.peekWord8
+     case m of
+         Just x | x == 64 || x == 43 -> return rawSeq
+         _ -> mappend rawSeq <$> multSeqFastq
 
 
 -------------------------------------------------
