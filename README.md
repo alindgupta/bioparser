@@ -1,8 +1,8 @@
 ## bioparser
 A fast(er) parser for .fasta or .fastq formats using the *attoparsec* library. ASCII encoding is assumed.
 
-Master [git repository](https://github.com/fushitarazu/bioparser):
-* `git clone git://github.com/fushitarazu/bioparser.git`
+Master [git repository](https://github.com/alindgupta/bioparser):
+* `git clone git://github.com/alindgupta/bioparser.git`
 
 ### Usage
 Build with stack.
