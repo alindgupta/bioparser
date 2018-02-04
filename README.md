@@ -1,10 +1,10 @@
-# bioparser
+## bioparser
 A fast(er) parser for .fasta or .fastq formats using the *attoparsec* library. ASCII encoding is assumed.
 
 Master [git repository](https://github.com/fushitarazu/bioparser):
 * `git clone git://github.com/fushitarazu/bioparser.git`
 
-## Usage
+### Usage
 Build with stack.
 
 ```haskell
@@ -17,7 +17,3 @@ main = do
   -- do something with x :: Vector FastaRecord
 
 ```
-
-
-## To-do
-Implement a command-line interface
