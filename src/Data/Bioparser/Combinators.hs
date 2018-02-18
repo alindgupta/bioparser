@@ -1,12 +1,17 @@
--- |
---      Module: Data.Bioparser.Combinators
---
---      High-level Parser combinators for FASTA and FASTQ formats
---      
+{- |
+   Module      : Data.Bioparser.Combinators
+   Maintainer  : Alind Gupta <alind.gupta@mail.utoronto.ca>
+   Stability   : 0.1
+   Portability : portable
+This module exports methods for parsing bytestrings.
+Currently supports fasta and (Sanger) fastq files.
+
+TODO: Support for SAM/BAM.
+-}
 
 module Data.Bioparser.Combinators
-    ( parseFasta        -- * parse .fs, .fasta file formats
-    , parseFastq        -- * parse .fq, .fastq file formtas
+    ( parseFasta       
+    , parseFastq
     ) where
 
 import Control.Applicative

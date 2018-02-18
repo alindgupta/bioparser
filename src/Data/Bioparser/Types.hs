@@ -1,37 +1,36 @@
--- |
---       Module: Data.Bioparser.Types
---
---       Newtype wrappers
---
---     
+{-# LANGUAGE GeneralizedNewtypeDeriving, FlexibleContexts #-}
 
+{- |
+   Module      : Data.Bioparser.Types
+   Maintainer  : Alind Gupta <alind.gupta@mail.utoronto.ca>
+   Stability   : 0.1
+   Portability : portable
+This module exports utility datatypes.
+
+-}
 
 module Data.Bioparser.Types
-    ( Defline
-    , Sequence
-    , PlusLine
-    , ScoreLine
-    , FastaRecord(..)
-    , FastqRecord(..)
-    ) where
+  ( Record(..)
+  , FastaRecord
+  , FastqRecord
+  , ParserType(..)
+  ) where
 
-import Data.ByteString (ByteString)
 import Control.DeepSeq
+import Data.ByteString (ByteString)
+import Data.Monoid ((<>))
+import Data.Vector (Vector)
+import Prelude
 
-type Defline = ByteString
-type Sequence = ByteString
-type PlusLine = ByteString
-type ScoreLine = ByteString
+data ParserType = Fasta | Fastq
+  deriving (Enum, Eq)
 
-newtype FastaRecord = FastaRecord (Defline, Sequence)
-    deriving (Show, Eq)
+type FastqRecord = (ByteString, ByteString, ByteString, ByteString)
+type FastaRecord = (ByteString, ByteString)
 
--- | Required for benchmarking purposes
-instance NFData FastaRecord where
-    rnf (FastaRecord _) = ()
+newtype Record t = Record (Vector t)
+  deriving (Functor, Applicative)
 
-instance NFData FastqRecord where
-    rnf _ = ()
-
-newtype FastqRecord = FastqRecord (Defline, Sequence, PlusLine, ScoreLine)
-    deriving (Show, Eq)
+-- Required for benchmarking purposes
+instance NFData (Record r) where
+  rnf r = seq r ()

@@ -1,115 +1,62 @@
--- |
---      Module: Data.Bioparser.Prim
---
---      Primitive parsers for FASTA and FASTQ files
---      ASCII encoding is assumed      
---
+{- |
+   Module      : Data.Bioparser.Prim
+   Maintainer  : Alind Gupta <alind.gupta@mail.utoronto.ca>
+   Stability   : 0.1
+   Portability : portable
+This module exports primitive parser combinators.
+
+-}
 
 module Data.Bioparser.Prim
-    ( fastaDefline          -- * defline beginning with '>'
-    , fastqDefline          -- * defline beginning with '@'
-    , multSeqFasta          -- * raw sequence for fasta, ignores newlines
-    , multSeqFastq          -- * raw sequence for fastq, ignores newline
-    , scoreLine             -- * quality scores for fastq
-    , plusLine              -- * id for fastq (beginning with '+')
-    , endOfLine             -- * handle \r, \n
+    ( defline
+    , lines
     ) where
 
-import Data.ByteString
-import Data.Word (Word8)
+import Control.Applicative ((*>), (<*), (<|>), liftA2)
 import Data.Attoparsec.ByteString     
-import qualified Data.Attoparsec.ByteString as A
-import Control.Applicative ((*>), (<*), (<|>))
-import Data.Maybe (isNothing)
-
 import Data.Bioparser.Types
+import Data.ByteString (ByteString)
+import Data.Maybe (isNothing)
+import Data.Word (Word8)
+import Prelude hiding (takeWhile, lines)
 
--- | Utility function
+n :: Word8
+n = 10
+
+r :: Word8
+r = 13
+
 notEndOfLine :: Word8 -> Bool
-notEndOfLine c = (c /= 10) && (c /= 13)
-{-# INLINE notEndOfLine #-}
+notEndOfLine ch = ch /= n && ch /= r
 
--- | Parses end of line characters '\n' and '\r'
 endOfLine :: Parser Word8
-endOfLine = A.word8 10 <|> A.word8 13
-{-# INLINE endOfLine #-}
+endOfLine = word8 r <|> word8 n
 
--- | Utility function, reads a single line delimited by a newline char
-singleLine :: Parser Data.ByteString.ByteString
-singleLine = A.takeWhile notEndOfLine <* endOfLine
-{-# INLINE singleLine #-}
+singleLine :: Parser ByteString
+singleLine = takeWhile notEndOfLine <* endOfLine
 
-
--------------------------------------------------
---      Defline
--------------------------------------------------
-
--- | Parse defline beginning with symb
-defline :: Parser Word8 -> Parser Defline
+defline :: Parser Word8 -> Parser ByteString
 defline symb = symb *> singleLine
-{-# INLINE defline #-}
 
-fastaDefline :: Parser Defline
-fastaDefline = defline (A.word8 62)
+fastaDefline :: Parser ByteString
+fastaDefline = defline $ word8 62
 
-fastqDefline :: Parser Defline
-fastqDefline = defline (A.word8 64)
+fastqDefline :: Parser ByteString
+fastqDefline = defline $ word8 64
 
--------------------------------------------------
---      Sequence parsing
--------------------------------------------------
+-- parses multiple lines of sequence
+-- and combines them into one
+lines :: ParserType -> Parser ByteString
+lines Fasta = do
+  line <- singleLine
+  next <- peekWord8
+  if next == Just 10 || next == Just 62 || isNothing next
+    then return line
+    else mappend line <$> lines Fasta
 
--- | Monadic parser for a sequence
--- Newline characters are ignored
--- Parser finishes if '>' is found
--- but not on endOfInput so parseOnly is required
-multSeqFasta :: Parser Sequence
-multSeqFasta = loop
-  where
-    loop = do
-      rawSeq <- singleLine
-      m <- A.peekWord8
-      case m of
-        x | x == Just 10 || x == Just 62 || isNothing x -> return rawSeq
-        _ -> mappend rawSeq <$> multSeqFasta
-
-
--- explanation for nothing clause in multSeqFasta:
--- since the last line in a fasta file is a singleline
--- rawSeq <- singleLine will eat up the final "\n", if any
--- and so peekWord8 returns Nothing due to end of input
--- and that needs to be handled as a return rawSeq
--- This behaviour is required for test suite because
--- encodeFasta will always end the file with a newline after defline
--- This behaviour is not required in multSeqFastq since
--- the last line in Fastq files is not a multSeq so
--- I omitted it to save a step, but may be added for coherence if required 
-
--- | Identical to multSeqFasta
--- but stops when it encounters '@' or '+'
-multSeqFastq :: Parser Sequence
-multSeqFastq = loop
-  where
-    loop = do
-     rawSeq <- singleLine
-     m <- A.peekWord8
-     case m of
-         Just x | x == 64 || x == 43 -> return rawSeq
-         _ -> mappend rawSeq <$> multSeqFastq
-
-
--------------------------------------------------
---      Scoreline (quality scores)
--------------------------------------------------
-
-scoreLine :: Parser ScoreLine
-scoreLine = singleLine
-{-# INLINE scoreLine #-}
-
--------------------------------------------------
---      Plusline
--------------------------------------------------
-
-plusLine :: Parser PlusLine
-plusLine = A.word8 43 *> singleLine
-{-# INLINE plusLine #-}
+lines Fastq = do
+  line <- singleLine
+  next <- peekWord8
+  if next == Just 43 || next == Just 64
+    then return line
+    else mappend line <$> lines Fasta

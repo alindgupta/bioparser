@@ -33,6 +33,8 @@ library
       OverloadedStrings
     , ViewPatterns
     , BangPatterns
+    , FlexibleInstances
+    , NoImplicitPrelude
   ghc-options: -Wall -fsimpl-tick-factor=110
 
 test-suite bioparser-test
