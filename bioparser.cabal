@@ -31,7 +31,9 @@ library
       Haskell2010
   default-extensions:
       OverloadedStrings
-  ghc-options: -Wall -O2 -fsimpl-tick-factor=110
+    , ViewPatterns
+    , BangPatterns
+  ghc-options: -Wall -fsimpl-tick-factor=110
 
 test-suite bioparser-test
   type:
