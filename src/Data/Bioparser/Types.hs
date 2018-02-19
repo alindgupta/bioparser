@@ -6,7 +6,6 @@
    Stability   : 0.1
    Portability : portable
 This module exports utility datatypes.
-
 -}
 
 module Data.Bioparser.Types
