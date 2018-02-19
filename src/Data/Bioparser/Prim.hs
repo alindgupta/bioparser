@@ -4,7 +4,7 @@
    Stability   : 0.1
    Portability : portable
 This module exports primitive parser combinators.
-
+TODO - rename the `lines` function
 -}
 
 module Data.Bioparser.Prim
