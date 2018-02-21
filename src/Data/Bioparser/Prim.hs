@@ -8,7 +8,9 @@ TODO - rename the `lines` function
 -}
 
 module Data.Bioparser.Prim
-    ( defline
+    (
+      -- * functions
+      defline  
     , lines
     ) where
 
@@ -26,37 +28,54 @@ n = 10
 r :: Word8
 r = 13
 
+-- | Not the end of a line
 notEndOfLine :: Word8 -> Bool
 notEndOfLine ch = ch /= n && ch /= r
 
+-- | Alternative parser for end of line characters
+-- i.e. either '\n' or '\r'
 endOfLine :: Parser Word8
 endOfLine = word8 r <|> word8 n
 
+-- | A line delimited by an end of line character
 singleLine :: Parser ByteString
 singleLine = takeWhile notEndOfLine <* endOfLine
 
-defline :: Parser Word8 -> Parser ByteString
-defline symb = symb *> singleLine
+-- | A single line starting with a particular character
+lineWith :: Parser Word8 -> Parser ByteString
+lineWith symb = symb *> singleLine
 
-fastaDefline :: Parser ByteString
-fastaDefline = defline $ word8 62
 
-fastqDefline :: Parser ByteString
-fastqDefline = defline $ word8 64
-
--- parses multiple lines of sequence
+-- | Parses multiple lines of a sequence (of nucleotides etc)
 -- and combines them into one
-lines :: ParserType -> Parser ByteString
-lines Fasta = do
+lines1 :: Parser ByteString
+lines1 = do
   line <- singleLine
   next <- peekWord8
   if next == Just 10 || next == Just 62 || isNothing next
     then return line
     else mappend line <$> lines Fasta
 
-lines Fastq = do
+lines2 :: Parser ByteString
+lines2 = do
   line <- singleLine
   next <- peekWord8
   if next == Just 43 || next == Just 64
     then return line
     else mappend line <$> lines Fasta
+
+-- | Wrap into a reader monad to access ParserType
+getSequence :: (MonadReader ParserType m) => m (Parser ByteString)
+getSequence = do
+  parserType <- ask
+  case parserType of
+    Fasta -> parseExcept [10, 62]  -- ^ chars > and \n
+    Fastq -> parseExcept [43, 64]  -- ^ chars + and >
+  where
+    parseExcept :: [Word8] -> Parser ByteString
+    parseExcept args = do
+      line <- singleLine
+      next <- peekWord8
+      if next `elem` Just <$> args || isNothing next
+        then return line
+        else mappend line <$> parseExcept args
