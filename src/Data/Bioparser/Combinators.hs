@@ -1,3 +1,5 @@
+{-# LANGUAGE ApplicativeDo #-}
+
 {- |
    Module      : Data.Bioparser.Combinators
    Maintainer  : Alind Gupta <alind.gupta@mail.utoronto.ca>
@@ -15,12 +17,21 @@ module Data.Bioparser.Combinators
     ) where
 
 import Control.Applicative
-import Data.Vector (Vector)
-import qualified Data.Vector as V
 import Data.Attoparsec.ByteString (Parser)
-
 import Data.Bioparser.Prim
 import Data.Bioparser.Types (FastaRecord(..), FastqRecord(..))
+import Data.Vector (Vector)
+import qualified Data.Vector as V
+
+-- | Parse fasta
+decode :: (Monad m, MonadReader ParserType m)
+  => m (ByteString -> Parser (Vector ParserOutput))
+  parserType <- ask
+  case parserType of
+    Fasta -> decodeWith Fasta
+    Fastq -> decodeWith Fastq
+
+
   
 -- | Parse a single fasta record, i.e defline-sequence
 fastaRecord :: Parser FastaRecord
