@@ -27,6 +27,7 @@ library
     , bytestring > 0.9.0  && < 0.12
     , vector     > 0.10.0
     , deepseq
+    , mtl
   default-language:
       Haskell2010
   default-extensions:
@@ -34,7 +35,9 @@ library
     , ViewPatterns
     , BangPatterns
     , FlexibleInstances
+    , FlexibleContexts
     , NoImplicitPrelude
+    , GeneralizedNewtypeDeriving
   ghc-options: -Wall -fsimpl-tick-factor=110
 
 test-suite bioparser-test
