@@ -14,4 +14,4 @@ main = do
   -- do something with x :: Vector FastaRecord
 
 ```
-Branch ```slave-monadwriter``` to include stats, almost certainly going to be slower than ```master```.
+Branch ```slave-monadwriter``` to include stats, almost certainly going to be slower than ```master```. Use ```master``` for speed.
