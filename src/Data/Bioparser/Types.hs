@@ -1,5 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, FlexibleContexts, BangPatterns #-}
-
 {- |
    Module      : Data.Bioparser.Types
    Maintainer  : Alind Gupta <alind.gupta@mail.utoronto.ca>
@@ -9,10 +7,11 @@ This module exports utility datatypes.
 -}
 
 module Data.Bioparser.Types
-  ( Record(..)
-  , FastaRecord
-  , FastqRecord
+  (
+    -- * datatypes
+    Record(..)
   , ParserType(..)
+  , ParserOutput(..)
   ) where
 
 import Control.DeepSeq
@@ -21,18 +20,18 @@ import Data.Monoid ((<>))
 import Data.Vector (Vector)
 import Prelude
 
-data ParserType = !Fasta
-                | !Fastq
+data ParserType = Fasta
+                | Fastq
   deriving (Eq, Enum)
 
-type FastqRecord = (ByteString, ByteString, ByteString, ByteString)
-type FastaRecord = (ByteString, ByteString)
-
--- | Parser outputs
-data ParserOutput i = Empty i
-                    | FastaRecord
-                    | FastqRecord
-                    deriving (Eq)
+-- | Parser outputs.
+data ParserOutput i =
+    Empty i      -- ^ parsing error
+  | FastaRecord  -- ^ fasta record
+    (ByteString, ByteString)
+  | FastqRecord  -- ^ fastq record
+    (ByteString, ByteString, ByteString, ByteString)
+  deriving (Eq)
 
 newtype Record t = Record (Vector t)
   deriving (Functor, Applicative)

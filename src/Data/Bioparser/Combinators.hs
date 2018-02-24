@@ -1,5 +1,3 @@
-{-# LANGUAGE ApplicativeDo #-}
-
 {- |
    Module      : Data.Bioparser.Combinators
    Maintainer  : Alind Gupta <alind.gupta@mail.utoronto.ca>
@@ -12,43 +10,45 @@ TODO: Support for SAM/BAM.
 -}
 
 module Data.Bioparser.Combinators
-    ( parseFasta       
-    , parseFastq
+    (
+    -- * functions
+    decode
     ) where
 
 import Control.Applicative
+import Control.Monad
+import Control.Monad.Reader
 import Data.Attoparsec.ByteString (Parser)
 import Data.Bioparser.Prim
-import Data.Bioparser.Types (FastaRecord(..), FastqRecord(..))
-import Data.Vector (Vector)
-import qualified Data.Vector as V
+import Data.Bioparser.Types ( ParserType(..)
+                            , ParserOutput(..))
+import Data.ByteString ()
+import Data.Vector (Vector, fromList)
+import Prelude
 
--- | Parse fasta
+-- | Reader monad wrapper for parser @decodeWith@.
 decode :: (Monad m, MonadReader ParserType m)
-  => m (ByteString -> Parser (Vector ParserOutput))
+  => m (Parser (Vector (ParserOutput a)))
+decode = do
   parserType <- ask
   case parserType of
-    Fasta -> decodeWith Fasta
-    Fastq -> decodeWith Fastq
+    Fasta -> return $ decodeWith Fasta
+    Fastq -> return $ decodeWith Fastq
 
+-- | Documentation pending.
+decodeWith :: ParserType -> Parser (Vector (ParserOutput a))
+decodeWith Fasta = let
+  singleRecord =
+    curry FastaRecord
+    <$> lineWith 62
+    <*> (manyLines Fasta)
+  in fromList <$> many singleRecord
 
-  
--- | Parse a single fasta record, i.e defline-sequence
-fastaRecord :: Parser FastaRecord
-fastaRecord = curry FastaRecord <$> fastaDefline <*> multSeqFasta
-
--- | Parse multiple fasta records and store as a vector
-parseFasta :: Parser (Vector FastaRecord)
-parseFasta = V.fromList <$> many fastaRecord
-
--- | Parse a single fastq record, i.e. defline-sequence-plusline-scores
-fastqRecord :: Parser FastqRecord
-fastqRecord = (\a b c d -> FastqRecord (a,b,c,d))
-  <$> fastqDefline
-  <*> multSeqFastq
-  <*> plusLine
-  <*> scoreLine
-
--- | Parse multiple fastq records and store as a vector
-parseFastq :: Parser (Vector FastqRecord)
-parseFastq = V.fromList <$> many fastqRecord
+decodeWith Fastq = let
+  singleRecord =
+    (\a b c d -> FastqRecord (a,b,c,d))
+    <$> lineWith 64
+    <*> manyLines Fastq
+    <*> singleLine
+    <*> lineWith 43
+  in fromList <$> many singleRecord
