@@ -25,25 +25,26 @@ import Data.Word (Word8)
 import Prelude hiding (takeWhile, lines)
 
 
--- | newline char
+-- | Newline char.
 n :: Word8
 n = 10
 
--- | newline char for carriage return
+-- | Newline char for carriage return.
 r :: Word8
 r = 13
 
 -- | Not the end of a line
--- This is not a `Parser`, simply a utility function
+-- This is not a @Parser@, simply a utility function.
 notEndOfLine :: Word8 -> Bool
 notEndOfLine ch = ch /= n && ch /= r
 
 -- | Parse end of line characters
--- i.e. either '\n' or '\r'
+-- i.e. either '\n' or '\r'.
 endOfLine :: Parser Word8
 endOfLine = word8 r <|> word8 n
 
--- | A line delimited by an end of line character
+-- | A line delimited by an end of line character.
+-- Equivalent to lineWith beginning with any word.
 singleLine :: Parser ByteString
 singleLine = takeWhile notEndOfLine <* endOfLine
 
@@ -52,7 +53,7 @@ lineWith :: Word8 -> Parser ByteString
 lineWith symb = (word8 symb) *> singleLine
 
 -- | Parses multiple lines of a sequence (of nucleotides etc)
--- and combines them into one
+-- and combines them into one.
 lines1 :: Parser ByteString
 lines1 = do
   line <- singleLine

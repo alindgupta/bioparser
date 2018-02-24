@@ -5,8 +5,6 @@
    Portability : portable
 This module exports methods for parsing bytestrings.
 Currently supports fasta and (Sanger) fastq files.
-
-TODO: Support for SAM/BAM.
 -}
 
 module Data.Bioparser.Combinators
