@@ -1,4 +1,4 @@
-odule Data.Bioparser
+module Data.Bioparser
     ( 
     -- * functions
       decodeM
